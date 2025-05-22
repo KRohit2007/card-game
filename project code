@@ -1,0 +1,504 @@
+'''This Program was made and designed by K Rohit.
+This program took 3 days to be made
+This program is a simulator of a card game named Hearts.
+In this game, there are four players, the user and three intelligent coded bots. 
+To be beginner friendly, rules and help commands are inbuilt here in this program.
+I hope you will enjoy playing this game.
+It is highly recommended to visit the help section
+Please give feedbacks if necessary'''
+
+
+#import required modules
+import random as rd
+import time 
+
+#print Ilcome statement
+print("\n---------------- ILCOME TO HEARTS ------------------\n\n")
+time.sleep(2)
+
+#enter name
+name=input("Please Enter Your Name: ")
+print("\n")
+
+
+#defining the card numbers and substitutes
+cards=["A","K","Q","J",10,9,8,7,6,5,4,3,2]
+cards_=[14,13,12,11,10,9,8,7,6,5,4,3,2]
+card_dict=dict(zip(cards_, cards))
+  
+  
+#creating suits and their substitutes
+suits=["Clubs","Diamonds","Spades","Hearts"]
+suit_value=dict(zip(suits,(1,2,3,4)))
+
+#Creating Card tuples
+deck=[(i,j) for i in suits for j in cards]
+deck_=[(i,j) for i in suits for j in cards_]
+
+
+#shuffling the deck using random
+rd.shuffle(deck_)
+
+#distributing cards
+player_shuffled=deck_[:13]
+bot_1=deck_[13:26]
+bot_2=deck_[26:39]
+bot_3=deck_[39:]
+
+
+player_shuffled_new=[]
+player=[]
+
+for i in player_shuffled:
+    player_shuffled_new.append((i[1],i[0]))
+player_shuffled_new.sort()
+for i in player_shuffled_new:
+    player.append((i[1],i[0]))
+player.sort()
+
+#creating players list and making variables to count points
+players=[player, bot_1, bot_2, bot_3]
+player_point=0
+bot_1_point=0
+bot_2_point=0
+bot_3_point=0
+
+
+#creating important dictionaries
+d1=dict(zip(cards_,[14,13,12,11,10,9,8,7,6,5,4,3,2]))
+d2={zip(suits,[1,2,3,4])}
+d3={name :player, "Bot_1":bot_1,"Bot_2":bot_2,"Bot_3":bot_3}
+d4={name :player_point,"Bot_1":bot_1_point,"Bot_2":bot_2_point,"Bot_3":bot_3_point}
+d5={name :deck_[:13], "Bot_1":deck_[13:26],"Bot_2":deck_[26:39],"Bot_3":deck_[39:]}
+
+
+#important variables
+command=""
+lead=0
+leadcard=0
+trick=[]
+start=True
+trickpoints=0
+broken=False
+
+
+#function for assigning lead player for each trick and order
+def leadp():
+    global players
+    global lead
+    global start
+    if start:
+        for i in players:
+            if ("Clubs",2) in i:
+                lead=i
+                break
+    players=players[players.index(lead):]+players[:players.index(lead)]
+
+    
+  
+
+#function containing bot program to deal cards and constraints
+def deal(a):
+    time.sleep(0.5)
+    global lead
+    global trick
+    global start
+    global leadcard
+    global trickpoints
+    global broken
+
+    just_broken=False
+    
+    #deal program and constraints for bots
+    if a!=player or command=="d":
+      
+      if a==lead:
+          if start: 
+              o=("Clubs",2)
+              leadcard=o
+              start=False
+          else:
+              r=[]
+              k=[]
+              if broken:
+                for i in a:
+                    k.append(i)
+                
+                for i in k:
+                  r.append(i[1])
+                r=min(r)
+                for i in k:
+                    if i[1]==r:
+                        o=i
+                leadcard=o
+
+
+              else:
+                  for i in a:
+                      if i[0]!="Hearts":
+                          k.append(i)
+                      else:
+                          available=False
+                          for i in a:
+                              if i[0]!="Hearts":
+                                  available=True
+                                  break
+                          if not available:
+                              k.append(i)                          
+                             
+              r=[]    
+              for i in k:
+                  r.append(i[1])
+              for i in k:
+                  if i[1]==min(r):
+                      o=i
+                  
+          leadcard=o
+                              
+      
+      else:
+          k=[]
+          for i in a:
+              if i[0]==leadcard[0]:
+                  k.append(i)
+                  
+              
+          if start:
+              for i in k:
+                  if i==("Spades",12) or i[0]=="Hearts":
+                     k.remove(i)
+                     
+          if len(k)==0:
+              k.extend(a)
+              
+          k_=[]
+          for i in k:
+              k_.append(i[1])
+          
+          k_=min(k_)
+          for i in k:
+              if i[1]==k_:
+                  o=i
+                  break
+       if o[0]=="Hearts":
+             If not broken:
+                broken=True
+                print(“Hearts Broken”)
+          
+         
+    
+    #constraints for player deal
+    elif a==player:
+      if a==lead:
+        if start:
+            o=("Clubs",2)
+            leadcard=o
+            start=False
+        
+        else:
+            al=False
+            while True:
+                try:
+                  o_=int(input("Deal a Card: "))
+                  o=a[o_-1]
+                except ValueError:
+                  print("Enter a valid position as a number\n")
+                  continue
+                
+                except IndexError:
+                  print("Enter a valid position\n")
+                  continue
+
+                
+                
+                if not broken:
+                    if o[0]!="Hearts":
+                        break
+                    else:
+                        for i in a:
+                            if i[0]!="Hearts":
+                                print("Hearts not broken\n")
+                                al=True
+                                break
+                        
+                        if not al:
+                            break
+                else:
+                    break
+                       
+            leadcard=o
+        
+        
+      else:
+        valid=False
+        br=False
+        while not valid:
+            try:
+              o_=int(input("Deal a Card: "))
+              o=a[o_-1]
+            except ValueError:
+                    print("Enter a valid position as a number\n")
+                    continue
+            
+            except IndexError:
+              print("Enter a valid position\n")
+              continue
+
+            
+            if o[0]==leadcard[0]:
+                valid=True
+            else:
+                for i in a:
+                    if i[0]==leadcard[0]:
+                        print("Invalid Card\n")
+                        br=True
+                        break
+                    else:
+                        pass
+                if not br:
+                    valid=True
+    
+    
+    #points addition
+    if o[0]=="Hearts":
+        trickpoints+=1
+        if not broken:
+            broken=True
+            print("Hearts broken")
+            
+    if o==("Spades",12):
+        trickpoints+=13
+        
+        
+    #display when each player is dealing    
+    for i in d3:
+        if d3.get(i)==a:
+            u=i
+    o0=(o[0],card_dict.get(o[1]))
+    print(u,":",o0,"\n")
+    
+    
+    #removing the deal card from card d list
+    trick.append(o)
+    a.remove(o)
+            
+            
+#function to declare the winner of each trick            
+def win():
+    global lead
+    global trick
+    global trickpoints
+    
+    k=[]
+    l=[]
+    
+    for i in trick:
+        if i[0]==leadcard[0]:
+            k.append(i)
+            
+    
+    for i in k:
+        l.append(i[1])
+    
+    v=max(l)
+    t=(leadcard[0],v)
+    
+    #displaying name of trick winner
+    for i in d5:
+        if t in d5.get(i):
+            win=d3.get(i)
+            time.sleep(0.5)
+            d4[i]+=trickpoints
+            if i==name:
+                 print("You won the trick !")
+                 print("Points Taken:",trickpoints)
+            else:
+                 print(i,"won the trick !")
+                 print(f"Points Taken by {i}:",trickpoints)
+            print("Points in hand: ", d4[name])
+            
+            #lead player for next deal
+            lead=win
+            break
+       
+    #resetting values after trick is finished 
+    trick=[]
+    trickpoints=0
+    
+        
+
+ #rules of the game
+rules=''' The Object of the Game of Hearts:
+ 
+Hearts is a trick-taking game where players avoid cards. 
+The objective of the game of Hearts is to have the least amount of points when one player eventually reaches 100 points. 
+Players don't want to end up with tricks containing hearts cards or the Queen of Spades which are worth points. 
+But they do want to end up with the Jack of Diamonds. 
+
+How Many Can Play Hearts:
+Three to seven players (four players is the best!)
+
+The Cards:
+deck of cards in the suit of hearts 
+You need a standard deck of 52 cards. 
+Each player is dealt the same number of cards. 
+So, if you have 4 players, each receives 13 cards (13 x 4 = 52). 
+If you have 3 players, deal each 13 cards, then add the leftover cards to the kitty. 
+The person who takes the first trick will take the kitty, too. 
+In each suit, the cards are ranked from the Ace, with the highest value, on down: K, Q, J, 10, 9, 8, 7, 6, 5, 4, 3, and 2.
+
+How to Deal Cards in the Game:
+The players cut for deal. 
+Each player is dealt a card until everyone has 13 cards in his hand. 
+The loIst cut that is 2 of clubs is the first to deal. 
+The whole pack is dealt out clockwise, one card at a time, each placed face down.
+
+After the cards have been dealt, each player chooses three cards to pass to an opponent. 
+Players pick their cards after they've looked at them, and before they've received cards from their opponents. 
+Cards are passed to the right at the first deal, to the left with the second, and across with the third. 
+At the fourth deal, players keep their own cards.
+
+Note: after each hand, the deal passes to the player on the dealer's left.
+
+How to Play the Game of Hearts 
+The player to the left of the dealer leads first. (Or the person holding the 2 of clubs card can start first.) 
+Each player after the lead must follow suit if he can. 
+If he can't, he may play any card he wants.
+
+A player wins a trick when he plays the highest card of the suit that is led. 
+The winner of the trick leads the next.
+
+No player can play a Heart card or the Queen of Spades on the first trick, even if you don’t have any Clubs. 
+A player can't lead with a heart until a heart has been "broken," or played in the game. 
+Hearts are broken when a player lacks a card in the suit that has been led, so he throws down a heart instead. 
+Hearts can't be broken on the first trick.
+
+How to Keep Score:
+After all the cards have been played, players count up their tricks. 
+Each player receives a penalty point for each heart card they have. 
+The player who ends up with the queen of spades gets 13 points. 
+
+HoIver if a player wins all of the penalty cards (13 hearts and the Queen of Spades), that player gets 0 points and all opponents get 26 points. 
+This move is called Shooting the Moon.
+
+The player with the least number of points when any player reaches 50 or 100 points (or another preset score or time limit) wins.\n\n'''
+
+
+
+#help
+help_str='''BEGINNER'S GUIDE:
+
+A deck consists of 52 cards.
+There are four suits in cards namely Clubs, Diamonds, Spades and Hearts.
+Each suit has card numbered from 2 to 10 and four special cards which are Ace, King, Queen and Jack.
+
+Note: No joker cards are included in this game.
+
+If you don't know the rules of this game (Hearts), then please check out the rules in-built for you
+in this program.
+
+ASSISTANCE WITH SIMULATOR:
+Providing you with live cards was out of our scope, so I have created a new method for
+identification of each card in the deck.
+A card is represented by a tuple consisting of two elements, the first element being suit name and
+the second element being the card value.
+There are three bots in this game which are already programmed to play this game.
+There are a total of 13 Tricks.
+In each trick an input will be required.
+The input must be in the form of an integer which represents the position of the card that is meant
+to be dealt.
+Positioning starts from the left side, the first one being 1, second one being 2 and so on.
+There are certain restrictions on the card that can be dealt in a trick. please check that out in
+the rules section.
+Once the game is finished,the winner is announced.
+The player with the least points wins the game.
+For further information, please email uditesh.dasgupta@gmail.com
+Thank you\n\n'''
+
+
+#command / menu list
+while command!="p" :
+    #function of each command
+    if command=='h':
+        print(help_str)
+
+    elif command=="d":
+        break
+        
+    elif command=='r':
+        print(rules)
+        
+    elif command=='q':
+        exit()
+        
+    elif command=='n':
+        name=input("Re-enter your name:")
+    command=input('''Enter the following for the following commands:-
+    (Rules: 'r')
+    (Help: 'h')
+    (Play game: 'p')
+    (Quit: 'q')
+    (Change Name: 'n')
+    (Demo game: 'd')
+    Enter here > ''')
+    print("\n")
+
+    
+#demo game
+if command=="d":
+      print("------------DEMO GAME---------------\n") 
+
+
+#start game
+else:
+    print("-----------------START-----------------\n")
+    
+time.sleep(0.5)
+print("Shuffling Cards.....\n")
+time.sleep(1.5)
+print("Best of luck ahead !\n")
+time.sleep(1)
+
+
+
+#displaying deck to the player
+player_=[]
+for i in player:
+   player_.append((i[0], card_dict.get(i[1])))
+print("Your Deck:",player_,"\n")
+
+
+#loop for 13 tricks
+for i in range(13):
+    print(f"\n------------- Trick {i+1} -----------------\n")
+    time.sleep(1)
+    player_a=[]
+    for i in player:
+       player_a.append((i[0], card_dict.get(i[1])))
+    #displaying card in hand
+    print("Cards in hand:",player_a,"\n")
+    
+    leadp()
+    for i in players:
+        deal(i)
+    win()
+
+#game end
+time.sleep(1)
+print("\n----------- GAME ENDED -----------\n")
+ 
+
+#Displaying points and declaring the final winner who has minimum points
+point_list= [player_point,bot_1_point, bot_2_point, bot_3_point]
+m=min(point_list)
+print("Scoreboard:" , d4.items())
+print("\n")
+for i in d4:
+    if d4.get(i)==m:
+        if i!=name:
+              print(i.upper(), "WON !")
+        else:
+              print("CONGRATULATIONS YOU WON THE GAME!!!")
+
+
+
